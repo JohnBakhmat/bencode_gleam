@@ -1,5 +1,7 @@
 import gleam/int
 import gleam/io
+import gleam/list
+import gleam/result
 import gleam/string
 
 pub fn main() {
@@ -16,15 +18,22 @@ pub fn encode(data: Data) -> Result(String, Nil) {
   case data {
     I(x) -> encode_int(x)
     S(x) -> encode_string(x)
-    _ -> "Suckk ass boomer"
+    L(l) -> encode_list(l)
   }
+}
+
+fn encode_int(x: Int) -> Result(String, Nil) {
+  { "i" <> int.to_string(x) <> "e" }
   |> Ok
 }
 
-fn encode_int(x: Int) -> String {
-  "i" <> int.to_string(x) <> "e"
+fn encode_string(x: String) -> Result(String, Nil) {
+  { int.to_string(string.length(x)) <> ":" <> x }
+  |> Ok
 }
 
-fn encode_string(x: String) -> String {
-  int.to_string(string.length(x)) <> ":" <> x
+fn encode_list(list: List(Data)) -> Result(String, Nil) {
+  list.map(list, encode)
+  |> result.all
+  |> result.map(fn(x) { "l" <> string.join(x, "") <> "e" })
 }
